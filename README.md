@@ -18,7 +18,6 @@ VNECrawler.py [-h] [--input URLS_FPATH] [--output OUTPUT_DPATH]
 options:
   -h, --help            show this help message and exit
   --input URLS_FPATH    urls txt file path
-  --output OUTPUT_DPATH
-                        saved directory path
+  --output OUTPUT_DPATH saved directory path
 ```
 
