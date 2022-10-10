@@ -16,4 +16,4 @@ def extract_content(url):
     description = (p.text for p in soup.find("p", class_="description").contents)
     paragraphs = (p.text for p in soup.find_all("p", class_="Normal"))
     return title, description, paragraphs
-    
+ 
