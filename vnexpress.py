@@ -97,6 +97,48 @@ class VNExpressCrawler:
         
         return total_error_urls
 
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="VNExpress urls/types crawler")
+    subparsers = parser.add_subparsers(title='task', dest='task')
+
+    # Subparser for the "url" task
+    parser_url_crawler = subparsers.add_parser('url', help='Craw by urls')
+    parser_url_crawler.add_argument("--input", 
+                        default="urls.txt", 
+                        help="urls txt file path",
+                        dest="urls_fpath")
+    parser_url_crawler.add_argument("--output", 
+                        default="data", 
+                        help="saved directory path",
+                        dest="output_dpath")
+
+    # Subparser for the "type" task
+    parser_type_crawler = subparsers.add_parser('type', help='Craw by types')
+    parser_type_crawler.add_argument("--type", 
+                        default="du-lich",
+                        help="name of articles type",
+                        dest="article_type")
+    parser_type_crawler.add_argument("--all",
+                        default=False,
+                        action="store_true",
+                        help="crawl all of types",
+                        dest="all_types")
+    parser_type_crawler.add_argument("--pages",
+                        default=1,
+                        type=int,
+                        help="number of pages to crawl per type",
+                        dest="total_pages")
+    parser_type_crawler.add_argument("--output", 
+                    default="data", 
+                    help="saved directory path",
+                    dest="output_dpath")
+                    
+    args = parser.parse_args()
+
+    return args
+
+
 def main(args):
     if args.task=="url":
         VNExpressCrawler.crawl_urls(args.urls_fpath, args.output_dpath)
@@ -105,36 +147,5 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="VNExpress urls/types crawler")
-
-    parser.add_argument("--task", 
-                        default="url", 
-                        choices=['url', 'type'],
-                        help="crawl task type",
-                        dest="task")
-    parser.add_argument("--input", 
-                        default="urls.txt", 
-                        help="urls txt file path",
-                        dest="urls_fpath")
-    parser.add_argument("--output", 
-                        default="data", 
-                        help="saved directory path",
-                        dest="output_dpath")
-    parser.add_argument("--type", 
-                        default="du-lich",
-                        help="name of articles type",
-                        dest="article_type")
-    parser.add_argument("--all",
-                        default=False,
-                        action="store_true",
-                        help="crawl all of types",
-                        dest="all_types")
-    parser.add_argument("--pages",
-                        default=1,
-                        type=int,
-                        help="number of pages to crawl per type",
-                        dest="total_pages")
-    
-    args = parser.parse_args()
-
+    args = parse_args()
     main(args)
