@@ -32,7 +32,7 @@ article_type_dict = {
 
 class VNExpressCrawler(BaseCrawler):
     @classmethod
-    def crawl_urls(cls, urls_fpath="urls.txt", output_dpath="data"):
+    def crawl_urls(cls, urls_fpath: str = "urls.txt", output_dpath: str = "data") -> list[str]:
         create_dir(output_dpath)
         urls = list(read_file(urls_fpath))
         # length of digits in an integer
@@ -51,7 +51,7 @@ class VNExpressCrawler(BaseCrawler):
         return error_urls
 
     @classmethod
-    def crawl_types(cls, article_type, all_types=False, total_pages=1, output_dpath="data"):
+    def crawl_types(cls, article_type: str, all_types: bool = False, total_pages: int = 1, output_dpath: str = "data") -> list[str]:
         urls_dpath, results_dpath = init_output_dirs(output_dpath)
 
         if all_types:
@@ -64,7 +64,7 @@ class VNExpressCrawler(BaseCrawler):
         return error_urls
 
     @staticmethod
-    def get_urls_of_type(article_type, total_pages=1):
+    def get_urls_of_type(article_type: str, total_pages: int = 1) -> list[str]:
         """"
         Get urls of articles in specific type 
         @param article_type (str): type of articles to get urls
@@ -88,7 +88,7 @@ class VNExpressCrawler(BaseCrawler):
         return articles_urls
     
     @classmethod
-    def crawl_type(cls, article_type, total_pages, urls_dpath, results_dpath):
+    def crawl_type(cls, article_type: str, total_pages: int, urls_dpath: str, results_dpath: str) -> list[str]:
         """"
         Crawl total_pages of articles in specific type 
         @param article_type (str): type of articles to crawl
@@ -113,7 +113,7 @@ class VNExpressCrawler(BaseCrawler):
         return error_urls
 
     @classmethod
-    def crawl_all_types(cls, total_pages, urls_dpath, results_dpath):
+    def crawl_all_types(cls, total_pages: int, urls_dpath: str, results_dpath: str) -> list[str]:
         """"
         Crawl articles from all categories with total_pages per category
         @param total_pages (int): number of pages to crawl

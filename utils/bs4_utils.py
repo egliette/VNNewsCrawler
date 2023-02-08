@@ -11,7 +11,7 @@ def get_text_from_tag(tag):
     return tag.text
 
 
-def extract_content(url):
+def extract_content(url: str) -> tuple:
     """
     Extract title, description and paragraphs from url
     @param url (str): url to crawl
@@ -34,7 +34,7 @@ def extract_content(url):
     return title, description, paragraphs
 
 
-def write_content(url, output_fpath):
+def write_content(url: str, output_fpath: str) -> bool:
     """
     From url, extract title, description and paragraphs then write in output_fpath
     @param url (str): url to crawl
