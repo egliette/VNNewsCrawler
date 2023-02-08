@@ -1,16 +1,13 @@
 import argparse
 
-from crawler.factory import get_crawler
-
-
-WEBNAMES = ['vnexpress']
+from crawler.factory import get_crawler, WEBNAMES
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Vietnamese News crawler (with url/type)")
     parser.add_argument("--webname", 
-                        default=WEBNAMES[0],
-                        choices=WEBNAMES, 
+                        default=WEBNAMES.keys()[0],
+                        choices=WEBNAMES.keys(), 
                         help="Web that want to crawls",
                         dest="webname")
     subparsers = parser.add_subparsers(title='task', dest='task')
