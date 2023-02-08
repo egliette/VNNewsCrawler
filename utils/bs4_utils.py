@@ -1,40 +1,15 @@
-import os
-
 import tqdm
 import requests
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, NavigableString
 
-
-article_type_dict = {
-    0: "thoi-su",
-    1: "du-lich",
-    2: "the-gioi",
-    3: "kinh-doanh",
-    4: "khoa-hoc",
-    5: "giai-tri",
-    6: "the-thao",
-    7: "phap-luat",
-    8: "giao-duc",
-    9: "suc-khoe",
-    10: "doi-song"
-}
-                                
-
-def create_dir(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-def read_file(path):
-    with open(path, encoding="utf-8") as file:
-        for line in file:
-            yield line
 
 def get_text_from_tag(tag):
     if isinstance(tag, NavigableString):
         return tag
                     
     # else if isinstance(tag, Tag):
-    return tag.text;
+    return tag.text
+
 
 def extract_content(url):
     """
@@ -58,6 +33,7 @@ def extract_content(url):
 
     return title, description, paragraphs
 
+
 def write_content(url, output_fpath):
     """
     From url, extract title, description and paragraphs then write in output_fpath
@@ -78,6 +54,7 @@ def write_content(url, output_fpath):
             file.write(p + "\n")
 
     return True
+
 
 def get_urls_of_type(article_type, total_pages=1):
     """"
@@ -101,3 +78,4 @@ def get_urls_of_type(article_type, total_pages=1):
             articles_urls.append(link.get("href"))
     
     return articles_urls
+
