@@ -1,25 +1,22 @@
-import os
+import os           
 
 
-article_type_dict = {
-    0: "thoi-su",
-    1: "du-lich",
-    2: "the-gioi",
-    3: "kinh-doanh",
-    4: "khoa-hoc",
-    5: "giai-tri",
-    6: "the-thao",
-    7: "phap-luat",
-    8: "giao-duc",
-    9: "suc-khoe",
-    10: "doi-song"
-}              
-
-def create_dir(path):
+def create_dir(path: str):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def read_file(path):
+def read_file(path: str):
     with open(path, encoding="utf-8") as file:
         for line in file:
             yield line
+
+
+def init_output_dirs(output_dpath: str) -> tuple[str]:
+    create_dir(output_dpath)
+
+    urls_dpath = "/".join([output_dpath, "urls"])
+    results_dpath = "/".join([output_dpath, "results"])
+    create_dir(urls_dpath)
+    create_dir(results_dpath)
+    
+    return urls_dpath, results_dpath

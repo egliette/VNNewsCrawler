@@ -1,23 +1,36 @@
-import argparse
+import requests
+import sys
+from pathlib import Path
 
 import tqdm
+from bs4 import BeautifulSoup
 
-from utils.utils import read_file, create_dir, article_type_dict
-from utils.bs4_utils import write_content, get_urls_of_type
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[1]  # root directory
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))  # add ROOT to PATH
 
-
-def _init_dirs(output_dpath):
-    create_dir(output_dpath)
-
-    urls_dpath = "/".join([output_dpath, "urls"])
-    results_dpath = "/".join([output_dpath, "results"])
-    create_dir(urls_dpath)
-    create_dir(results_dpath)
-    
-    return urls_dpath, results_dpath
+from crawler.base_crawler import BaseCrawler
+from utils.bs4_utils import write_content
+from utils.utils import init_output_dirs, create_dir, read_file
 
 
-class VNExpressCrawler:
+article_type_dict = {
+    0: "thoi-su",
+    1: "du-lich",
+    2: "the-gioi",
+    3: "kinh-doanh",
+    4: "khoa-hoc",
+    5: "giai-tri",
+    6: "the-thao",
+    7: "phap-luat",
+    8: "giao-duc",
+    9: "suc-khoe",
+    10: "doi-song"
+}   
+
+
+class VNExpressCrawler(BaseCrawler):
     @classmethod
     def crawl_urls(cls, urls_fpath="urls.txt", output_dpath="data"):
         create_dir(output_dpath)
@@ -39,7 +52,7 @@ class VNExpressCrawler:
 
     @classmethod
     def crawl_types(cls, article_type, all_types=False, total_pages=1, output_dpath="data"):
-        urls_dpath, results_dpath = _init_dirs(output_dpath)
+        urls_dpath, results_dpath = init_output_dirs(output_dpath)
 
         if all_types:
             error_urls = cls. crawl_all_types(total_pages, urls_dpath, results_dpath)
@@ -50,6 +63,30 @@ class VNExpressCrawler:
                                     results_dpath)
         return error_urls
 
+    @staticmethod
+    def get_urls_of_type(article_type, total_pages=1):
+        """"
+        Get urls of articles in specific type 
+        @param article_type (str): type of articles to get urls
+        @param total_pages (int): number of pages to get urls
+        @return articles_urls (list(str)): list of urls
+        """
+        articles_urls = list()
+        for i in tqdm.tqdm(range(1, total_pages+1)):
+            content = requests.get(f"https://vnexpress.net/{article_type}-p{i}").content
+            soup = BeautifulSoup(content, "html.parser")
+            titles = soup.find_all(class_="title-news")
+
+            if (len(titles) == 0):
+                # print(f"Couldn't find any news in the category {article_type} on page {i}")
+                continue
+
+            for title in titles:
+                link = title.find_all("a")[0]
+                articles_urls.append(link.get("href"))
+    
+        return articles_urls
+    
     @classmethod
     def crawl_type(cls, article_type, total_pages, urls_dpath, results_dpath):
         """"
@@ -64,7 +101,7 @@ class VNExpressCrawler:
         error_urls = list()
         
         # get urls
-        articles_urls = get_urls_of_type(article_type, total_pages)
+        articles_urls = cls.get_urls_of_type(article_type, total_pages)
         articles_urls_fpath = "/".join([urls_dpath, f"{article_type}.txt"])
         with open(articles_urls_fpath, "w") as urls_file:
             urls_file.write("\n".join(articles_urls)) 
@@ -96,56 +133,3 @@ class VNExpressCrawler:
             total_error_urls.extend(error_urls)
         
         return total_error_urls
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="VNExpress urls/types crawler")
-    subparsers = parser.add_subparsers(title='task', dest='task')
-
-    # Subparser for the "url" task
-    parser_url_crawler = subparsers.add_parser('url', help='Craw by urls')
-    parser_url_crawler.add_argument("--input", 
-                        default="urls.txt", 
-                        help="urls txt file path",
-                        dest="urls_fpath")
-    parser_url_crawler.add_argument("--output", 
-                        default="data", 
-                        help="saved directory path",
-                        dest="output_dpath")
-
-    # Subparser for the "type" task
-    parser_type_crawler = subparsers.add_parser('type', help='Craw by types')
-    parser_type_crawler.add_argument("--type", 
-                        default="du-lich",
-                        help="name of articles type",
-                        dest="article_type")
-    parser_type_crawler.add_argument("--all",
-                        default=False,
-                        action="store_true",
-                        help="crawl all of types",
-                        dest="all_types")
-    parser_type_crawler.add_argument("--pages",
-                        default=1,
-                        type=int,
-                        help="number of pages to crawl per type",
-                        dest="total_pages")
-    parser_type_crawler.add_argument("--output", 
-                    default="data", 
-                    help="saved directory path",
-                    dest="output_dpath")
-                    
-    args = parser.parse_args()
-
-    return args
-
-
-def main(args):
-    if args.task=="url":
-        VNExpressCrawler.crawl_urls(args.urls_fpath, args.output_dpath)
-    elif args.task=="type":
-        VNExpressCrawler.crawl_types(args.article_type, args.all_types, args.total_pages, args.output_dpath)
-
-
-if __name__ == "__main__":
-    args = parse_args()
-    main(args)

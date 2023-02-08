@@ -1,5 +1,5 @@
-import tqdm
 import requests
+
 from bs4 import BeautifulSoup, NavigableString
 
 
@@ -55,27 +55,4 @@ def write_content(url, output_fpath):
 
     return True
 
-
-def get_urls_of_type(article_type, total_pages=1):
-    """"
-    Get urls of articles in specific type 
-    @param article_type (str): type of articles to get urls
-    @param total_pages (int): number of pages to get urls
-    @return articles_urls (list(str)): list of urls
-    """
-    articles_urls = list()
-    for i in tqdm.tqdm(range(1, total_pages+1)):
-        content = requests.get(f"https://vnexpress.net/{article_type}-p{i}").content
-        soup = BeautifulSoup(content, "html.parser")
-        titles = soup.find_all(class_="title-news")
-
-        if (len(titles) == 0):
-            # print(f"Couldn't find any news in the category {article_type} on page {i}")
-            continue
-
-        for title in titles:
-            link = title.find_all("a")[0]
-            articles_urls.append(link.get("href"))
-    
-    return articles_urls
 
