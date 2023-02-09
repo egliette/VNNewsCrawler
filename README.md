@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ### Crawl by URL
 To crawl by URLs, you need to provide them in a text file and then give their path inside the `--input` flag (default is `urls.txt`)  
 ```yaml
-python VNNewsCrawler.py vnexpress url [-h] [--input URLS_FPATH] [--output OUTPUT_DPATH]
+python VNNewsCrawler.py --webname vnexpress url [-h] [--input URLS_FPATH] [--output OUTPUT_DPATH]
 
 options:
   -h, --help            show this help message and exit
@@ -40,7 +40,7 @@ doi-song
 To crawl article in a single type, you must provide type name in `--type` flag and number of pages you want to crawl in `--pages` flag.  
 For example if you run below command:  
 ```yaml
-python VNNewsCrawler.py vnexpress type --type khoa-hoc --pages 3
+python VNNewsCrawler.py --webname vnexpress type --type khoa-hoc --pages 3
 ```  
 It will crawl articles from
 ```
@@ -50,7 +50,7 @@ https://vnexpress.net/khoa-hoc-p3
 ```
 To crawl article in all categories, you need to provide `--all` flag and number of pages `--pages` instead.  
 ```yaml
-python VNNewsCrawler.py vnexpress type [-h] [--type ARTICLE_TYPE] [--all] [--pages TOTAL_PAGES] [--output OUTPUT_DPATH]
+python VNNewsCrawler.py --webname vnexpress type [-h] [--type ARTICLE_TYPE] [--all] [--pages TOTAL_PAGES] [--output OUTPUT_DPATH]
 
 optional arguments:
   -h, --help            show this help message and exit
