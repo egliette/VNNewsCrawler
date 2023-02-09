@@ -6,8 +6,8 @@ from crawler.factory import get_crawler, WEBNAMES
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Vietnamese News crawler (with url/type)")
     parser.add_argument("--webname", 
-                        default=WEBNAMES.keys()[0],
-                        choices=WEBNAMES.keys(), 
+                        default=list(WEBNAMES.keys())[0],
+                        choices=list(WEBNAMES.keys()), 
                         help="Web that want to crawls",
                         dest="webname")
     subparsers = parser.add_subparsers(title='task', dest='task')
