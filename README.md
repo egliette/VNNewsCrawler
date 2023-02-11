@@ -4,7 +4,7 @@ Crawling titles and paragraphs of VN Express articles using their URLs or catego
 
 ## Installation
 Create virtual environment then install required packages:
-```bash
+```
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
@@ -13,8 +13,8 @@ pip install -r requirements.txt
 ## Usage
 ### Crawl by URL
 To crawl by URLs, you need to provide them in a text file and then give their path inside the `--input` flag (default is `urls.txt`)  
-```bash
-python urls_crawler.py [-h] [--input URLS_FPATH] [--output OUTPUT_DPATH]
+```yaml
+python VNNewsCrawler.py --webname vnexpress url [-h] [--input URLS_FPATH] [--output OUTPUT_DPATH]
 
 options:
   -h, --help            show this help message and exit
@@ -24,7 +24,7 @@ options:
 
 ### Crawl by category name
 You can crawl a number of articles by one type or all types based on the flags you use. Currently, my program only supports the following categories:
-```bash
+```
 thoi-su
 du-lich
 the-gioi
@@ -39,18 +39,18 @@ doi-song
 ```  
 To crawl article in a single type, you must provide type name in `--type` flag and number of pages you want to crawl in `--pages` flag.  
 For example if you run below command:  
-```bash
-python types_crawler.py --type khoa-hoc --pages 3
+```yaml
+python VNNewsCrawler.py --webname vnexpress type --type khoa-hoc --pages 3
 ```  
 It will crawl articles from
 ```
 https://vnexpress.net/khoa-hoc-p1
 https://vnexpress.net/khoa-hoc-p2
 https://vnexpress.net/khoa-hoc-p3
-```  
+```
 To crawl article in all categories, you need to provide `--all` flag and number of pages `--pages` instead.  
-```bash
-python types_crawler.py [-h] [--type ARTICLE_TYPE] [--all] [--pages TOTAL_PAGES] [--output OUTPUT_DPATH]
+```yaml
+python VNNewsCrawler.py --webname vnexpress type [-h] [--type ARTICLE_TYPE] [--all] [--pages TOTAL_PAGES] [--output OUTPUT_DPATH]
 
 optional arguments:
   -h, --help            show this help message and exit
