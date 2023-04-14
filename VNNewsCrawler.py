@@ -22,6 +22,11 @@ def parse_args() -> argparse.Namespace:
                                     default="data", 
                                     help="saved directory path",
                                     dest="output_dpath")
+    parser_url_crawler.add_argument("--num_workers", 
+                                    default=1,
+                                    type=int, 
+                                    help="number of workers to crawl",
+                                    dest="num_workers")
 
     # Subparser for the "type" task
     parser_type_crawler = subparsers.add_parser('type', help='Craw by types')
@@ -43,6 +48,11 @@ def parse_args() -> argparse.Namespace:
                                     default="data", 
                                     help="saved directory path",
                                     dest="output_dpath")
+    parser_type_crawler.add_argument("--num_workers", 
+                                    default=1, 
+                                    type=int, 
+                                    help="number of workers to crawl",
+                                    dest="num_workers")
                                     
     args = parser.parse_args()
     
@@ -52,9 +62,10 @@ def parse_args() -> argparse.Namespace:
 def main(args: argparse.Namespace) -> None:
     crawler = get_crawler(args.webname)
     if args.task=="url":
-        crawler.crawl_urls(args.urls_fpath, args.output_dpath)
+        crawler.crawl_urls(args.urls_fpath, args.output_dpath, args.num_workers)
     elif args.task=="type":
-        crawler.crawl_types(args.article_type, args.all_types, args.total_pages, args.output_dpath)
+        crawler.crawl_types(args.article_type, args.all_types, args.total_pages, 
+                            args.output_dpath, args.num_workers)
 
 
 if __name__ == "__main__":

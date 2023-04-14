@@ -1,8 +1,9 @@
 import requests
 import sys
 from pathlib import Path
+import concurrent.futures
 
-import tqdm
+from tqdm import tqdm
 from bs4 import BeautifulSoup
 
 FILE = Path(__file__).resolve()
@@ -31,105 +32,115 @@ article_type_dict = {
 
 
 class VNExpressCrawler(BaseCrawler):
+
     @classmethod
-    def crawl_urls(cls, urls_fpath: str = "urls.txt", output_dpath: str = "data") -> list[str]:
+    def crawl_urls(cls, urls_fpath="urls.txt", output_dpath="data", num_workers=1):
+        """
+        Crawling contents from a list of urls
+        Returns:
+            list of failed urls
+        """
         create_dir(output_dpath)
         urls = list(read_file(urls_fpath))
-        # length of digits in an integer
-        index_len = len(str(len(urls)))
-                        
-        error_urls = list()
-        with tqdm.tqdm(total=len(urls)) as pbar:
-            for i, url in enumerate(urls):
-                file_index = str(i+1).zfill(index_len)
-                output_fpath = "".join([output_dpath, "/url_", file_index, ".txt"])
-                is_success = write_content(url, output_fpath)
-                if (not is_success):
-                    error_urls.append(url)
-                pbar.update(1)
+        num_urls = len(urls)
+        # number of digits in an integer
+        index_len = len(str(num_urls))
 
-        return error_urls
+        args = (urls, [output_dpath]*num_urls, range(num_urls), [index_len]*num_urls)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
+            results = list(tqdm(executor.map(cls.crawl_url_thread, *args), total=num_urls))
+    
+        return [result for result in results if result is not None]
 
     @classmethod
-    def crawl_types(cls, article_type: str, all_types: bool = False, total_pages: int = 1, output_dpath: str = "data") -> list[str]:
+    def crawl_url_thread(cls, url, output_dpath, index, index_len):
+        """ Crawling content of the specific url """
+        file_index = str(index + 1).zfill(index_len)
+        output_fpath = "".join([output_dpath, "/url_", file_index, ".txt"])
+        is_success = write_content(url, output_fpath)
+        if (not is_success):
+            return url
+        else:
+            return None
+
+    @classmethod
+    def crawl_types(cls, article_type, all_types=False, total_pages=1, 
+                    output_dpath="data", num_workers=1):
+        """ Crawling contents of a specific type or all types """
         urls_dpath, results_dpath = init_output_dirs(output_dpath)
 
         if all_types:
-            error_urls = cls. crawl_all_types(total_pages, urls_dpath, results_dpath)
+            error_urls = cls.crawl_all_types(total_pages, urls_dpath, 
+                                             results_dpath, num_workers)
         else:
-            error_urls = cls.crawl_type(article_type, 
-                                    total_pages, 
-                                    urls_dpath, 
-                                    results_dpath)
+            error_urls = cls.crawl_type(article_type, total_pages, urls_dpath, 
+                                        results_dpath, num_workers)
         return error_urls
 
-    @staticmethod
-    def get_urls_of_type(article_type: str, total_pages: int = 1) -> list[str]:
-        """"
-        Get urls of articles in specific type 
-        @param article_type (str): type of articles to get urls
-        @param total_pages (int): number of pages to get urls
-        @return articles_urls (list(str)): list of urls
-        """
-        articles_urls = list()
-        for i in tqdm.tqdm(range(1, total_pages+1)):
-            content = requests.get(f"https://vnexpress.net/{article_type}-p{i}").content
-            soup = BeautifulSoup(content, "html.parser")
-            titles = soup.find_all(class_="title-news")
-
-            if (len(titles) == 0):
-                # print(f"Couldn't find any news in the category {article_type} on page {i}")
-                continue
-
-            for title in titles:
-                link = title.find_all("a")[0]
-                articles_urls.append(link.get("href"))
-    
-        return articles_urls
-    
     @classmethod
-    def crawl_type(cls, article_type: str, total_pages: int, urls_dpath: str, results_dpath: str) -> list[str]:
-        """"
-        Crawl total_pages of articles in specific type 
-        @param article_type (str): type of articles to crawl
-        @param total_pages (int): number of pages to crawl
-        @param urls_dpath (str): path to urls directory
-        @param results_dpath (str): path to results directory
-        @return error_urls (list(str)): list of error urls
-        """
+    def crawl_type(cls, article_type, total_pages, urls_dpath, results_dpath, num_workers=1):
+        """" Crawl total_pages of articles in specific type """
         print(f"Crawl articles type {article_type}")
         error_urls = list()
         
-        # get urls
-        articles_urls = cls.get_urls_of_type(article_type, total_pages)
+        # getting urls
+        print(f"Getting urls of {article_type}...")
+        articles_urls = cls.get_urls_of_type(article_type, total_pages, num_workers)
         articles_urls_fpath = "/".join([urls_dpath, f"{article_type}.txt"])
         with open(articles_urls_fpath, "w") as urls_file:
             urls_file.write("\n".join(articles_urls)) 
 
-        # crawl those urls
+        # crawling urls
+        print(f"Crawling from urls of {article_type}...")
         results_type_dpath = "/".join([results_dpath, article_type])
-        error_urls = cls.crawl_urls(articles_urls_fpath, results_type_dpath)
+        error_urls = cls.crawl_urls(articles_urls_fpath, results_type_dpath, num_workers)
         
         return error_urls
 
     @classmethod
-    def crawl_all_types(cls, total_pages: int, urls_dpath: str, results_dpath: str) -> list[str]:
-        """"
-        Crawl articles from all categories with total_pages per category
-        @param total_pages (int): number of pages to crawl
-        @param urls_dpath (str): path to urls directory
-        @param results_dpath (str): path to results directory
-        @return total_error_urls (list(str)): list of error urls
-        """
+    def crawl_all_types(cls, total_pages, urls_dpath, results_dpath, num_workers=1):
+        """" Crawl articles from all categories with total_pages per category """
         total_error_urls = list()
         
         num_types = len(article_type_dict) 
         for i in range(num_types):
             article_type = article_type_dict[i]
             error_urls = cls.crawl_type(article_type, 
-                                    total_pages, 
-                                    urls_dpath, 
-                                    results_dpath)
+                                        total_pages, 
+                                        urls_dpath, 
+                                        results_dpath,
+                                        num_workers)
             total_error_urls.extend(error_urls)
         
         return total_error_urls
+
+    @classmethod
+    def get_urls_of_type(cls, article_type, total_pages=1, num_workers=1):
+        """" Get urls of articles in a specific type """
+        articles_urls = list()
+        args = ([article_type]*total_pages, range(1, total_pages+1))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
+            results = list(tqdm(executor.map(cls.get_urls_of_type_thread, *args), total=total_pages))
+
+        articles_urls = sum(results, [])
+    
+        return articles_urls
+
+    @staticmethod
+    def get_urls_of_type_thread(article_type, page_number):
+        """" Get urls of articles in a specific type in a page"""
+        content = requests.get(f"https://vnexpress.net/{article_type}-p{page_number}").content
+        soup = BeautifulSoup(content, "html.parser")
+        titles = soup.find_all(class_="title-news")
+
+        if (len(titles) == 0):
+            # print(f"Couldn't find any news in https://vnexpress.net/{article_type}-p{page_number}")
+            pass
+
+        articles_urls = list()
+
+        for title in titles:
+            link = title.find_all("a")[0]
+            articles_urls.append(link.get("href"))
+    
+        return articles_urls

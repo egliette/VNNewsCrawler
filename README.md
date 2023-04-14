@@ -14,12 +14,13 @@ pip install -r requirements.txt
 ### Crawl by URL
 To crawl by URLs, you need to provide them in a text file and then give their path inside the `--input` flag (default is `urls.txt`)  
 ```yaml
-python VNNewsCrawler.py --webname vnexpress url [-h] [--input URLS_FPATH] [--output OUTPUT_DPATH]
+python VNNewsCrawler.py --webname vnexpress url [-h] [--input URLS_FPATH] [--output OUTPUT_DPATH] [--num_workers NUM_WORKERS]
 
 options:
-  -h, --help            show this help message and exit
-  --input URLS_FPATH    urls txt file path
-  --output OUTPUT_DPATH saved directory path
+  -h, --help                  show this help message and exit
+  --input URLS_FPATH          urls txt file path
+  --output OUTPUT_DPATH       saved directory path
+  --num_workers NUM_WORKERS   number of workers to crawl
 ```
 
 ### Crawl by category name
@@ -50,19 +51,20 @@ https://vnexpress.net/khoa-hoc-p3
 ```
 To crawl article in all categories, you need to provide `--all` flag and number of pages `--pages` instead.  
 ```yaml
-python VNNewsCrawler.py --webname vnexpress type [-h] [--type ARTICLE_TYPE] [--all] [--pages TOTAL_PAGES] [--output OUTPUT_DPATH]
+python VNNewsCrawler.py --webname vnexpress type [-h] [--type ARTICLE_TYPE] [--all] [--pages TOTAL_PAGES] [--output OUTPUT_DPATH] [--num_workers NUM_WORKERS]
 
 optional arguments:
-  -h, --help            show this help message and exit
-  --type ARTICLE_TYPE   name of articles type
-  --all                 crawl all of types
-  --pages TOTAL_PAGES   number of pages to crawl per type
-  --output OUTPUT_DPATH
-                        saved directory path
+  -h, --help                  show this help message and exit
+  --type ARTICLE_TYPE         name of articles type
+  --all                       crawl all of types
+  --pages TOTAL_PAGES         number of pages to crawl per type
+  --output OUTPUT_DPATH       saved directory path
+  --num_workers NUM_WORKERS   number of workers to crawl
 ```
 
 ## Appendix
 I've crawled all categories of articles with 20 pages each that you can download [here](https://drive.google.com/file/d/1zgS3nldOGW90QKgumNtbarScqtycTLsz/view?usp=sharing).
 ## Todo
+- [x] Speed up crawling progress with multithreading
 - [ ] Add logging module
 - [ ] Crawl in other news websites
