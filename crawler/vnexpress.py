@@ -33,8 +33,16 @@ article_type_dict = {
 
 class VNExpressCrawler(BaseCrawler):
 
-    @classmethod
-    def crawl_urls(cls, urls_fpath="urls.txt", output_dpath="data", num_workers=1):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def start_crawling(self):
+        if self.task=="url":
+            self.crawl_urls(self.urls_fpath, self.output_dpath)
+        elif self.task=="type":
+            self.crawl_types()
+        
+    def crawl_urls(self, urls_fpath, output_dpath):
         """
         Crawling contents from a list of urls
         Returns:
@@ -44,18 +52,17 @@ class VNExpressCrawler(BaseCrawler):
         urls = list(read_file(urls_fpath))
         num_urls = len(urls)
         # number of digits in an integer
-        index_len = len(str(num_urls))
+        self.index_len = len(str(num_urls))
 
-        args = (urls, [output_dpath]*num_urls, range(num_urls), [index_len]*num_urls)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
-            results = list(tqdm(executor.map(cls.crawl_url_thread, *args), total=num_urls))
+        args = ([output_dpath]*num_urls, urls, range(num_urls))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.num_workers) as executor:
+            results = list(tqdm(executor.map(self.crawl_url_thread, *args), total=num_urls))
     
         return [result for result in results if result is not None]
 
-    @classmethod
-    def crawl_url_thread(cls, url, output_dpath, index, index_len):
+    def crawl_url_thread(self, output_dpath, url, index):
         """ Crawling content of the specific url """
-        file_index = str(index + 1).zfill(index_len)
+        file_index = str(index + 1).zfill(self.index_len)
         output_fpath = "".join([output_dpath, "/url_", file_index, ".txt"])
         is_success = write_content(url, output_fpath)
         if (not is_success):
@@ -63,29 +70,24 @@ class VNExpressCrawler(BaseCrawler):
         else:
             return None
 
-    @classmethod
-    def crawl_types(cls, article_type, all_types=False, total_pages=1, 
-                    output_dpath="data", num_workers=1):
+    def crawl_types(self):
         """ Crawling contents of a specific type or all types """
-        urls_dpath, results_dpath = init_output_dirs(output_dpath)
+        urls_dpath, results_dpath = init_output_dirs(self.output_dpath)
 
-        if all_types:
-            error_urls = cls.crawl_all_types(total_pages, urls_dpath, 
-                                             results_dpath, num_workers)
+        if self.all_types:
+            error_urls = self.crawl_all_types(urls_dpath, results_dpath)
         else:
-            error_urls = cls.crawl_type(article_type, total_pages, urls_dpath, 
-                                        results_dpath, num_workers)
+            error_urls = self.crawl_type(self.article_type, urls_dpath, results_dpath)
         return error_urls
 
-    @classmethod
-    def crawl_type(cls, article_type, total_pages, urls_dpath, results_dpath, num_workers=1):
+    def crawl_type(self, article_type, urls_dpath, results_dpath):
         """" Crawl total_pages of articles in specific type """
         print(f"Crawl articles type {article_type}")
         error_urls = list()
         
         # getting urls
         print(f"Getting urls of {article_type}...")
-        articles_urls = cls.get_urls_of_type(article_type, total_pages, num_workers)
+        articles_urls = self.get_urls_of_type(article_type)
         articles_urls_fpath = "/".join([urls_dpath, f"{article_type}.txt"])
         with open(articles_urls_fpath, "w") as urls_file:
             urls_file.write("\n".join(articles_urls)) 
@@ -93,41 +95,34 @@ class VNExpressCrawler(BaseCrawler):
         # crawling urls
         print(f"Crawling from urls of {article_type}...")
         results_type_dpath = "/".join([results_dpath, article_type])
-        error_urls = cls.crawl_urls(articles_urls_fpath, results_type_dpath, num_workers)
+        error_urls = self.crawl_urls(articles_urls_fpath, results_type_dpath)
         
         return error_urls
 
-    @classmethod
-    def crawl_all_types(cls, total_pages, urls_dpath, results_dpath, num_workers=1):
+    def crawl_all_types(self, urls_dpath, results_dpath):
         """" Crawl articles from all categories with total_pages per category """
         total_error_urls = list()
         
         num_types = len(article_type_dict) 
         for i in range(num_types):
             article_type = article_type_dict[i]
-            error_urls = cls.crawl_type(article_type, 
-                                        total_pages, 
-                                        urls_dpath, 
-                                        results_dpath,
-                                        num_workers)
+            error_urls = self.crawl_type(article_type, urls_dpath, results_dpath)
             total_error_urls.extend(error_urls)
         
         return total_error_urls
 
-    @classmethod
-    def get_urls_of_type(cls, article_type, total_pages=1, num_workers=1):
+    def get_urls_of_type(self, article_type):
         """" Get urls of articles in a specific type """
         articles_urls = list()
-        args = ([article_type]*total_pages, range(1, total_pages+1))
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
-            results = list(tqdm(executor.map(cls.get_urls_of_type_thread, *args), total=total_pages))
+        args = ([article_type]*self.total_pages, range(1, self.total_pages+1))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.num_workers) as executor:
+            results = list(tqdm(executor.map(self.get_urls_of_type_thread, *args), total=self.total_pages))
 
         articles_urls = sum(results, [])
     
         return articles_urls
 
-    @staticmethod
-    def get_urls_of_type_thread(article_type, page_number):
+    def get_urls_of_type_thread(self, article_type, page_number):
         """" Get urls of articles in a specific type in a page"""
         content = requests.get(f"https://vnexpress.net/{article_type}-p{page_number}").content
         soup = BeautifulSoup(content, "html.parser")

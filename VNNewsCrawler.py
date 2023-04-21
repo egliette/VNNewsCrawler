@@ -60,12 +60,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main(args: argparse.Namespace) -> None:
-    crawler = get_crawler(args.webname)
-    if args.task=="url":
-        crawler.crawl_urls(args.urls_fpath, args.output_dpath, args.num_workers)
-    elif args.task=="type":
-        crawler.crawl_types(args.article_type, args.all_types, args.total_pages, 
-                            args.output_dpath, args.num_workers)
+    crawler = get_crawler(**vars(args))
+    
+    crawler.start_crawling()
 
 
 if __name__ == "__main__":
