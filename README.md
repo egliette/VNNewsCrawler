@@ -66,5 +66,6 @@ optional arguments:
 I've crawled all categories of articles with 20 pages each that you can download [here](https://drive.google.com/file/d/1zgS3nldOGW90QKgumNtbarScqtycTLsz/view?usp=sharing).
 ## Todo
 - [x] Speed up crawling progress with multithreading
-- [ ] Add logging module
+- [x] Add logging module
+- [ ] Use yml config file instead of argparse
 - [ ] Crawl in other news websites

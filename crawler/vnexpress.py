@@ -11,6 +11,7 @@ ROOT = FILE.parents[1]  # root directory
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
+from logger import log
 from crawler.base_crawler import BaseCrawler
 from utils.bs4_utils import write_content
 from utils.utils import init_output_dirs, create_dir, read_file
@@ -35,12 +36,16 @@ class VNExpressCrawler(BaseCrawler):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-
+        self.logger = log.get_logger(name=__name__)
+        
     def start_crawling(self):
+        error_urls = list()
         if self.task=="url":
-            self.crawl_urls(self.urls_fpath, self.output_dpath)
+            error_urls = self.crawl_urls(self.urls_fpath, self.output_dpath)
         elif self.task=="type":
-            self.crawl_types()
+            error_urls = self.crawl_types()
+
+        self.logger.info(f"The number of failed URL: {len(error_urls)}")
         
     def crawl_urls(self, urls_fpath, output_dpath):
         """
@@ -48,6 +53,7 @@ class VNExpressCrawler(BaseCrawler):
         Returns:
             list of failed urls
         """
+        self.logger.info(f"Start crawling urls from {urls_fpath} file...")
         create_dir(output_dpath)
         urls = list(read_file(urls_fpath))
         num_urls = len(urls)
@@ -59,6 +65,7 @@ class VNExpressCrawler(BaseCrawler):
             results = list(tqdm(executor.map(self.crawl_url_thread, *args), total=num_urls))
     
         return [result for result in results if result is not None]
+        self.logger.info(f"Saving crawling result into {output_dpath} directory...")
 
     def crawl_url_thread(self, output_dpath, url, index):
         """ Crawling content of the specific url """
@@ -66,6 +73,7 @@ class VNExpressCrawler(BaseCrawler):
         output_fpath = "".join([output_dpath, "/url_", file_index, ".txt"])
         is_success = write_content(url, output_fpath)
         if (not is_success):
+            self.logger.debug(f"Crawling unsuccessfully: {url}")
             return url
         else:
             return None
@@ -82,18 +90,18 @@ class VNExpressCrawler(BaseCrawler):
 
     def crawl_type(self, article_type, urls_dpath, results_dpath):
         """" Crawl total_pages of articles in specific type """
-        print(f"Crawl articles type {article_type}")
+        self.logger.info(f"Crawl articles type {article_type}")
         error_urls = list()
         
         # getting urls
-        print(f"Getting urls of {article_type}...")
+        self.logger.info(f"Getting urls of {article_type}...")
         articles_urls = self.get_urls_of_type(article_type)
         articles_urls_fpath = "/".join([urls_dpath, f"{article_type}.txt"])
         with open(articles_urls_fpath, "w") as urls_file:
             urls_file.write("\n".join(articles_urls)) 
 
         # crawling urls
-        print(f"Crawling from urls of {article_type}...")
+        self.logger.info(f"Crawling from urls of {article_type}...")
         results_type_dpath = "/".join([results_dpath, article_type])
         error_urls = self.crawl_urls(articles_urls_fpath, results_type_dpath)
         
@@ -107,6 +115,7 @@ class VNExpressCrawler(BaseCrawler):
         for i in range(num_types):
             article_type = article_type_dict[i]
             error_urls = self.crawl_type(article_type, urls_dpath, results_dpath)
+            self.logger.info(f"The number of failed {article_type} URL: {len(error_urls)}")
             total_error_urls.extend(error_urls)
         
         return total_error_urls

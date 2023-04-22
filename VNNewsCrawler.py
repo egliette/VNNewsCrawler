@@ -1,5 +1,6 @@
 import argparse
 
+from logger import log
 from crawler.factory import get_crawler, WEBNAMES
 
 
@@ -60,8 +61,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main(args: argparse.Namespace) -> None:
+    log.setup_logging(log_dir=args.output_dpath, 
+                      config_fpath="logger/logger_config.yml")
     crawler = get_crawler(**vars(args))
-    
     crawler.start_crawling()
 
 

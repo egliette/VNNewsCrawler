@@ -1,0 +1,23 @@
+version: 1
+#https://docs.python.org/3/howto/logging.html#logging-advanced-tutorial
+disable_existing_loggers: False
+formatters:
+  simple:
+    format: "%(message)s"
+  verbose:
+    format: "%(asctime)s | %(name)s | Line %(lineno)d | %(levelname)s | %(message)s"
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: simple
+    stream: ext://sys.stdout
+  file_handler: 
+    class: logging.FileHandler 
+    level: DEBUG
+    formatter: verbose 
+    filename: "info.log" 
+    encoding: "utf8"
+root:
+  level: DEBUG
+  handlers: ["console", "file_handler"]
