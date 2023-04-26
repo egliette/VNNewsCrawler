@@ -14,7 +14,6 @@ def setup_logging(log_dir, config_fpath="logger_config.yml"):
     if log_config.is_file():
         with open(log_config, "r") as f:
             config = yaml.safe_load(f.read())
-            logging.config.dictConfig(config)
             # modify logging paths based on log_dir
             for __, handler in config["handlers"].items():
                 if "filename" in handler:
