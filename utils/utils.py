@@ -1,17 +1,17 @@
 import os           
+import yaml 
 
 
-def create_dir(path: str) -> None:
+def create_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def read_file(path: str):
+def read_file(path):
     with open(path, encoding="utf-8") as file:
         for line in file:
             yield line
 
-
-def init_output_dirs(output_dpath: str) -> tuple[str]:
+def init_output_dirs(output_dpath):
     create_dir(output_dpath)
 
     urls_dpath = "/".join([output_dpath, "urls"])
@@ -20,3 +20,8 @@ def init_output_dirs(output_dpath: str) -> tuple[str]:
     create_dir(results_dpath)
     
     return urls_dpath, results_dpath
+
+def get_config(file_path):
+    with open(file_path, "r") as f:
+        config = yaml.safe_load(f)
+    return config

@@ -1,0 +1,16 @@
+# Web that want to crawls (only support vnexpress now)
+webname: "vnexpress"
+
+# tasks = ["url", "type"]
+task: "url"
+
+#logger config file path
+logger_fpath: "logger/logger_config.yml"
+urls_fpath: "urls.txt"
+output_dpath: "data"
+num_workers: 1
+
+# if task == "type"
+all_types: False
+article_type: "du-lich"
+total_pages: 1

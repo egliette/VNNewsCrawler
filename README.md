@@ -11,19 +11,19 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-### Crawl by URL
-To crawl by URLs, you need to provide them in a text file and then give their path inside the `--input` flag (default is `urls.txt`)  
-```yaml
-python VNNewsCrawler.py --webname vnexpress url [-h] [--input URLS_FPATH] [--output OUTPUT_DPATH] [--num_workers NUM_WORKERS]
+Modifying your crawler configuration file (default is `crawler_config.yml`) to customize your crawling progress. Then simply run:
+```
+python VNNewsCrawler.py [-h] [--config CONFIG_FPATH]
 
 options:
-  -h, --help                  show this help message and exit
-  --input URLS_FPATH          urls txt file path
-  --output OUTPUT_DPATH       saved directory path
-  --num_workers NUM_WORKERS   number of workers to crawl
+  -h, --help              show this help message and exit
+  --config CONFIG_FPATH   path to config file
 ```
+### Crawl by URL
+To crawl by URLs, you need to set `task: "url"` in configuration file and ignore fields below `# if task == "type"` line.
 
 ### Crawl by category name
+To crawl by URLs, you need to set `task: "type"` in configuration file.  
 You can crawl a number of articles by one type or all types based on the flags you use. Currently, my program only supports the following categories:
 ```
 thoi-su
@@ -38,10 +38,13 @@ giao-duc
 suc-khoe
 doi-song
 ```  
-To crawl article in a single type, you must provide type name in `--type` flag and number of pages you want to crawl in `--pages` flag.  
+To crawl article in a single type, you must set `all_types: False` and give the specific type in `article_type`. Setting number of pages you want to crawl in `total_pages`.  
 For example if you run below command:  
 ```yaml
-python VNNewsCrawler.py --webname vnexpress type --type khoa-hoc --pages 3
+# if task == "type"
+article_type: "khoa-hoc"
+all_types: False
+total_pages: 3
 ```  
 It will crawl articles from
 ```
@@ -49,23 +52,12 @@ https://vnexpress.net/khoa-hoc-p1
 https://vnexpress.net/khoa-hoc-p2
 https://vnexpress.net/khoa-hoc-p3
 ```
-To crawl article in all categories, you need to provide `--all` flag and number of pages `--pages` instead.  
-```yaml
-python VNNewsCrawler.py --webname vnexpress type [-h] [--type ARTICLE_TYPE] [--all] [--pages TOTAL_PAGES] [--output OUTPUT_DPATH] [--num_workers NUM_WORKERS]
-
-optional arguments:
-  -h, --help                  show this help message and exit
-  --type ARTICLE_TYPE         name of articles type
-  --all                       crawl all of types
-  --pages TOTAL_PAGES         number of pages to crawl per type
-  --output OUTPUT_DPATH       saved directory path
-  --num_workers NUM_WORKERS   number of workers to crawl
-```
+To crawl article in all categories, you just need to set  `all_types: True`, the program will ignore the `article_type` field. 
 
 ## Appendix
 I've crawled all categories of articles with 20 pages each that you can download [here](https://drive.google.com/file/d/1zgS3nldOGW90QKgumNtbarScqtycTLsz/view?usp=sharing).
 ## Todo
 - [x] Speed up crawling progress with multithreading
 - [x] Add logging module
-- [ ] Use yml config file instead of argparse
+- [x] Use yml config file instead of argparse
 - [ ] Crawl in other news websites
