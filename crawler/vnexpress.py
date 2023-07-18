@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
 
 from logger import log
 from crawler.base_crawler import BaseCrawler
-from utils.bs4_utils import write_content
+from utils.bs4_utils import get_text_from_tag
 from utils.utils import init_output_dirs, create_dir, read_file
 
 
@@ -46,7 +46,50 @@ class VNExpressCrawler(BaseCrawler):
             error_urls = self.crawl_types()
 
         self.logger.info(f"The number of failed URL: {len(error_urls)}")
-        
+
+    def _extract_content(self, url: str) -> tuple:
+        """
+        Extract title, description and paragraphs from url
+        @param url (str): url to crawl
+        @return title (str)
+        @return description (generator)
+        @return paragraphs (generator)
+        """
+        content = requests.get(url).content
+        soup = BeautifulSoup(content, "html.parser")
+
+        title = soup.find("h1", class_="title-detail") 
+        if title == None:
+            return None, None, None
+        title = title.text
+
+        # some sport news have location-stamp child tag inside description tag
+        description = (get_text_from_tag(p) for p in soup.find("p", class_="description").contents)
+        paragraphs = (get_text_from_tag(p) for p in soup.find_all("p", class_="Normal"))
+
+        return title, description, paragraphs
+
+    def _write_content(self, url: str, output_fpath: str) -> bool:
+        """
+        From url, extract title, description and paragraphs then write in output_fpath
+        @param url (str): url to crawl
+        @param output_fpath (str): file path to save crawled result
+        @return (bool): True if crawl successfully and otherwise
+        """
+        title, description, paragraphs = self.extract_content(url)
+                    
+        if title == None:
+            return False
+
+        with open(output_fpath, "w", encoding="utf-8") as file:
+            file.write(title + "\n")
+            for p in description:
+                file.write(p + "\n")
+            for p in paragraphs:                     
+                file.write(p + "\n")
+
+        return True
+
     def crawl_urls(self, urls_fpath, output_dpath):
         """
         Crawling contents from a list of urls
@@ -64,14 +107,14 @@ class VNExpressCrawler(BaseCrawler):
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.num_workers) as executor:
             results = list(tqdm(executor.map(self.crawl_url_thread, *args), total=num_urls))
     
-        return [result for result in results if result is not None]
         self.logger.info(f"Saving crawling result into {output_dpath} directory...")
+        return [result for result in results if result is not None]
 
     def crawl_url_thread(self, output_dpath, url, index):
         """ Crawling content of the specific url """
         file_index = str(index + 1).zfill(self.index_len)
         output_fpath = "".join([output_dpath, "/url_", file_index, ".txt"])
-        is_success = write_content(url, output_fpath)
+        is_success = self._write_content(url, output_fpath)
         if (not is_success):
             self.logger.debug(f"Crawling unsuccessfully: {url}")
             return url
