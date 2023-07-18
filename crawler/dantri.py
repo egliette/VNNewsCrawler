@@ -14,30 +14,28 @@ from crawler.base_crawler import BaseCrawler
 from utils.bs4_utils import get_text_from_tag
 
 
-article_type_dict = {
-    0: "xa-hoi",
-    1: "the-gioi",
-    2: "kinh-doanh",
-    3: "bat-dong-san",
-    4: "the-thao",
-    5: "lao-dong-viec-lam",
-    6: "tam-long-nhan-ai",
-    7: "suc-khoe",
-    8: "van-hoa",
-    9: "giai-tri",
-    10: "suc-manh-so",
-    11: "giao-duc",
-    12: "an-sinh",
-    13: "phap-luat"
-}   
-
-
 class DanTriCrawler(BaseCrawler):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.logger = log.get_logger(name=__name__)
         self.base_url = "https://dantri.com.vn"
+        self.article_type_dict = {
+            0: "xa-hoi",
+            1: "the-gioi",
+            2: "kinh-doanh",
+            3: "bat-dong-san",
+            4: "the-thao",
+            5: "lao-dong-viec-lam",
+            6: "tam-long-nhan-ai",
+            7: "suc-khoe",
+            8: "van-hoa",
+            9: "giai-tri",
+            10: "suc-manh-so",
+            11: "giao-duc",
+            12: "an-sinh",
+            13: "phap-luat"
+        }   
         
     def _extract_content(self, url: str) -> tuple:
         """

@@ -14,26 +14,24 @@ from crawler.base_crawler import BaseCrawler
 from utils.bs4_utils import get_text_from_tag
 
 
-article_type_dict = {
-    0: "thoi-su",
-    1: "du-lich",
-    2: "the-gioi",
-    3: "kinh-doanh",
-    4: "khoa-hoc",
-    5: "giai-tri",
-    6: "the-thao",
-    7: "phap-luat",
-    8: "giao-duc",
-    9: "suc-khoe",
-    10: "doi-song"
-}   
-
-
 class VNExpressCrawler(BaseCrawler):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.logger = log.get_logger(name=__name__)
+        self.article_type_dict = {
+            0: "thoi-su",
+            1: "du-lich",
+            2: "the-gioi",
+            3: "kinh-doanh",
+            4: "khoa-hoc",
+            5: "giai-tri",
+            6: "the-thao",
+            7: "phap-luat",
+            8: "giao-duc",
+            9: "suc-khoe",
+            10: "doi-song"
+        }   
 
     def _extract_content(self, url: str) -> tuple:
         """

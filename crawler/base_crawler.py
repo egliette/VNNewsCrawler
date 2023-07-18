@@ -87,9 +87,9 @@ class BaseCrawler(ABC):
         """" Crawl articles from all categories with total_pages per category """
         total_error_urls = list()
         
-        num_types = len(article_type_dict) 
+        num_types = len(self.article_type_dict) 
         for i in range(num_types):
-            article_type = article_type_dict[i]
+            article_type = self.article_type_dict[i]
             error_urls = self.crawl_type(article_type, urls_dpath, results_dpath)
             self.logger.info(f"The number of failed {article_type} URL: {len(error_urls)}")
             total_error_urls.extend(error_urls)
