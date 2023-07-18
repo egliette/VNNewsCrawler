@@ -2,7 +2,7 @@ import argparse
 
 from logger import log
 from utils import utils
-from crawler.factory import get_crawler, WEBNAMES
+from crawler.factory import get_crawler
 
 
 def main(config_fpath):

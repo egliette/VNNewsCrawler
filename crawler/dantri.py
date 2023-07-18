@@ -129,7 +129,7 @@ class DanTriCrawler(BaseCrawler):
 
     def crawl_types(self):
         """ Crawling contents of a specific type or all types """
-        urls_dpath, results_dpath = init_output_dirs(self.output_dpath)
+        urls_dpath, results_dpath = init_output_dirs(self.output_dpath, self.__class__.__name__)
 
         if self.all_types:
             error_urls = self.crawl_all_types(urls_dpath, results_dpath)
@@ -188,7 +188,8 @@ class DanTriCrawler(BaseCrawler):
         titles = soup.find_all(class_="article-title")
 
         if (len(titles) == 0):
-            self.logger.info(f"Couldn't find any news in {page_url}")
+            self.logger.info(f"Couldn't find any news in {page_url} \nMaybe you sent too many requests, try using less workers")
+            
 
         articles_urls = list()
 
