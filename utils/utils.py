@@ -11,11 +11,11 @@ def read_file(path):
         for line in file:
             yield line.rstrip("\n")
 
-def init_output_dirs(output_dpath, web=""):
+def init_output_dirs(output_dpath):
     create_dir(output_dpath)
 
-    urls_dpath = "/".join([output_dpath, "urls", web])
-    results_dpath = "/".join([output_dpath, "results", web])
+    urls_dpath = "/".join([output_dpath, "urls"])
+    results_dpath = output_dpath
     create_dir(urls_dpath)
     create_dir(results_dpath)
     

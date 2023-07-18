@@ -7,7 +7,7 @@ task: "url"
 #logger config file path
 logger_fpath: "logger/logger_config.yml"
 urls_fpath: "urls.txt"
-output_dpath: "data"
+output_dpath: "result"
 num_workers: 1
 
 # if task == "type"

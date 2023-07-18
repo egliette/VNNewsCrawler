@@ -56,7 +56,7 @@ class BaseCrawler(ABC):
 
     def crawl_types(self):
         """ Crawling contents of a specific type or all types """
-        urls_dpath, results_dpath = init_output_dirs(self.output_dpath, self.__class__.__name__)
+        urls_dpath, results_dpath = init_output_dirs(self.output_dpath)
 
         if self.all_types:
             error_urls = self.crawl_all_types(urls_dpath, results_dpath)
