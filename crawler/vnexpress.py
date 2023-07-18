@@ -33,7 +33,7 @@ class VNExpressCrawler(BaseCrawler):
             10: "doi-song"
         }   
 
-    def _extract_content(self, url: str) -> tuple:
+    def extract_content(self, url: str) -> tuple:
         """
         Extract title, description and paragraphs from url
         @param url (str): url to crawl
@@ -55,14 +55,14 @@ class VNExpressCrawler(BaseCrawler):
 
         return title, description, paragraphs
 
-    def _write_content(self, url: str, output_fpath: str) -> bool:
+    def write_content(self, url: str, output_fpath: str) -> bool:
         """
         From url, extract title, description and paragraphs then write in output_fpath
         @param url (str): url to crawl
         @param output_fpath (str): file path to save crawled result
         @return (bool): True if crawl successfully and otherwise
         """
-        title, description, paragraphs = self._extract_content(url)
+        title, description, paragraphs = self.extract_content(url)
                     
         if title == None:
             return False

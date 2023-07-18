@@ -6,13 +6,41 @@ from tqdm import tqdm
 from utils.utils import init_output_dirs, create_dir, read_file
 
 class BaseCrawler(ABC):
-    @abstractmethod
-    def crawl_urls(self) -> list[str]:
-        pass
 
     @abstractmethod
-    def crawl_types(self) -> list[str]:
-        pass
+    def extract_content(self, url):
+        """
+        Extract title, description and paragraphs from url
+        @param url (str): url to crawl
+        @return title (str)
+        @return description (generator)
+        @return paragraphs (generator)
+        """
+
+        title = str()
+        description = list()
+        paragraphs = list()
+
+        return title, description, paragraphs
+
+    @abstractmethod
+    def write_content(self, url, output_fpath):
+        """
+        From url, extract title, description and paragraphs then write in output_fpath
+        @param url (str): url to crawl
+        @param output_fpath (str): file path to save crawled result
+        @return (bool): True if crawl successfully and otherwise
+        """
+
+        return True
+    
+    @abstractmethod
+    def get_urls_of_type_thread(self, article_type, page_number):
+        """" Get urls of articles in a specific type in a page"""
+
+        articles_urls = list()
+
+        return articles_urls
 
     def start_crawling(self):
         error_urls = list()
@@ -38,7 +66,7 @@ class BaseCrawler(ABC):
 
         args = ([output_dpath]*num_urls, urls, range(num_urls))
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.num_workers) as executor:
-            results = list(tqdm(executor.map(self.crawl_url_thread, *args), total=num_urls))
+            results = list(tqdm(executor.map(self.crawl_url_thread, *args), total=num_urls, desc="URLs"))
     
         self.logger.info(f"Saving crawling result into {output_dpath} directory...")
         return [result for result in results if result is not None]
@@ -47,7 +75,7 @@ class BaseCrawler(ABC):
         """ Crawling content of the specific url """
         file_index = str(index + 1).zfill(self.index_len)
         output_fpath = "".join([output_dpath, "/url_", file_index, ".txt"])
-        is_success = self._write_content(url, output_fpath)
+        is_success = self.write_content(url, output_fpath)
         if (not is_success):
             self.logger.debug(f"Crawling unsuccessfully: {url}")
             return url
@@ -102,8 +130,9 @@ class BaseCrawler(ABC):
         articles_urls = list()
         args = ([article_type]*self.total_pages, range(1, self.total_pages+1))
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.num_workers) as executor:
-            results = list(tqdm(executor.map(self.get_urls_of_type_thread, *args), total=self.total_pages))
+            results = list(tqdm(executor.map(self.get_urls_of_type_thread, *args), total=self.total_pages, desc="Pages"))
 
         articles_urls = sum(results, [])
+        articles_urls = list(set(articles_urls))
     
         return articles_urls
