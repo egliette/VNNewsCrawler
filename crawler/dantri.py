@@ -80,7 +80,7 @@ class DanTriCrawler(BaseCrawler):
         @param output_fpath (str): file path to save crawled result
         @return (bool): True if crawl successfully and otherwise
         """
-        title, description, paragraphs = self.extract_content(url)
+        title, description, paragraphs = self._extract_content(url)
                     
         if title == None:
             return False
