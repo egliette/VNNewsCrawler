@@ -48,15 +48,16 @@ class VietNamNetCrawler(BaseCrawler):
         content = requests.get(url).content
         soup = BeautifulSoup(content, "html.parser")
 
-        title = soup.find("h1", class_="content-detail-title") 
-        if title == None:
-            return None, None, None
-        title = title.text
+        title_tag = soup.find("h1", class_="content-detail-title") 
+        desc_tag = soup.find("h2", class_=["content-detail-sapo", "sm-sapo-mb-0"])
+        p_tag = soup.find("div", class_=["maincontent", "main-content"])
 
-        # some sport news have location-stamp child tag inside description tag
-        description = (get_text_from_tag(p) for p in soup.find("h2", class_="content-detail-sapo sm-sapo-mb-0").contents)
-        content = soup.find("div", class_="maincontent main-content")
-        paragraphs = (get_text_from_tag(p) for p in content.find_all("p"))
+        if not [var for var in (title_tag, desc_tag, p_tag) if var is None]:
+            return None, None, None
+        
+        title = title_tag.text
+        description = (get_text_from_tag(p) for p in desc_tag.contents)
+        paragraphs = (get_text_from_tag(p) for p in p_tag.find_all("p"))
 
         return title, description, paragraphs
 
@@ -86,7 +87,7 @@ class VietNamNetCrawler(BaseCrawler):
         page_url = f"https://vietnamnet.vn/{article_type}-page{page_number}"
         content = requests.get(page_url).content
         soup = BeautifulSoup(content, "html.parser")
-        titles = soup.find_all(class_="article-title")
+        titles = soup.find_all(class_="horizontalPost__main-title  vnn-title title-bold")
 
         if (len(titles) == 0):
             self.logger.info(f"Couldn't find any news in {page_url} \nMaybe you sent too many requests, try using less workers")
