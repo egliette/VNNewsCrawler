@@ -96,7 +96,9 @@ class VietNamNetCrawler(BaseCrawler):
         articles_urls = list()
 
         for title in titles:
-            link = title.find_all("a")[0]
-            articles_urls.append(self.base_url + link.get("href"))
+            full_url = title.find_all("a")[0].get("href")
+            if self.base_url not in full_url:
+                full_url = self.base_url + full_url
+            articles_urls.append(full_url)
     
         return articles_urls
