@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 import concurrent.futures
 
+
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 
@@ -18,21 +19,24 @@ from utils.utils import init_output_dirs, create_dir, read_file
 
 
 article_type_dict = {
-    0: "thoi-su",
-    1: "du-lich",
-    2: "the-gioi",
-    3: "kinh-doanh",
-    4: "khoa-hoc",
-    5: "giai-tri",
-    6: "the-thao",
-    7: "phap-luat",
-    8: "giao-duc",
-    9: "suc-khoe",
-    10: "doi-song"
+    0: "xa-hoi",
+    1: "the-gioi",
+    2: "kinh-doanh",
+    3: "bat-dong-san",
+    4: "the-thao",
+    5: "lao-dong-viec-lam",
+    6: "tam-long-nhan-ai",
+    7: "suc-khoe",
+    8: "van-hoa",
+    9: "giai-tri",
+    10: "suc-manh-so",
+    11: "giao-duc",
+    12: "an-sinh",
+    13: "phap-luat"
 }   
 
 
-class VNExpressCrawler(BaseCrawler):
+class DanTriCrawler(BaseCrawler):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -133,10 +137,10 @@ class VNExpressCrawler(BaseCrawler):
 
     def get_urls_of_type_thread(self, article_type, page_number):
         """" Get urls of articles in a specific type in a page"""
-        page_url = f"https://vnexpress.net/{article_type}-p{page_number}"
+        page_url = f"https://dantri.com.vn/{article_type}/trang-{page_number}.htm"
         content = requests.get(page_url).content
         soup = BeautifulSoup(content, "html.parser")
-        titles = soup.find_all(class_="title-news")
+        titles = soup.find_all(class_="article-title")
 
         if (len(titles) == 0):
             self.logger.info(f"Couldn't find any news in {page_url}")
