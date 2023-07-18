@@ -52,7 +52,7 @@ class VietNamNetCrawler(BaseCrawler):
         desc_tag = soup.find("h2", class_=["content-detail-sapo", "sm-sapo-mb-0"])
         p_tag = soup.find("div", class_=["maincontent", "main-content"])
 
-        if not [var for var in (title_tag, desc_tag, p_tag) if var is None]:
+        if [var for var in (title_tag, desc_tag, p_tag) if var is None]:
             return None, None, None
         
         title = title_tag.text
