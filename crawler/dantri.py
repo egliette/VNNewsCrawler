@@ -41,6 +41,7 @@ class DanTriCrawler(BaseCrawler):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.logger = log.get_logger(name=__name__)
+        self.base_url = "https://dantri.com.vn"
         
     def start_crawling(self):
         error_urls = list()
@@ -192,7 +193,7 @@ class DanTriCrawler(BaseCrawler):
         articles_urls = list()
 
         for title in titles:
-            link = title.find_all("a")[0]
+            link = self.base_url + title.find_all("a")[0]
             articles_urls.append(link.get("href"))
     
         return articles_urls
