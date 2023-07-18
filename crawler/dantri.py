@@ -193,7 +193,7 @@ class DanTriCrawler(BaseCrawler):
         articles_urls = list()
 
         for title in titles:
-            link = self.base_url + title.find_all("a")[0]
-            articles_urls.append(link.get("href"))
+            link = title.find_all("a")[0]
+            articles_urls.append(self.base_url + link.get("href"))
     
         return articles_urls
