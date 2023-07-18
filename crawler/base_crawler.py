@@ -92,6 +92,7 @@ class BaseCrawler(ABC):
             article_type = self.article_type_dict[i]
             error_urls = self.crawl_type(article_type, urls_dpath, results_dpath)
             self.logger.info(f"The number of failed {article_type} URL: {len(error_urls)}")
+            self.logger.info("-" * 79)
             total_error_urls.extend(error_urls)
         
         return total_error_urls
