@@ -87,12 +87,11 @@ class VietNamNetCrawler(BaseCrawler):
         page_url = f"https://vietnamnet.vn/{article_type}-page{page_number}"
         content = requests.get(page_url).content
         soup = BeautifulSoup(content, "html.parser")
-        titles = soup.find_all(class_="horizontalPost__main-title  vnn-title title-bold")
+        titles = soup.find_all(class_=["horizontalPost__main-title", "vnn-title", "title-bold"])
 
         if (len(titles) == 0):
             self.logger.info(f"Couldn't find any news in {page_url} \nMaybe you sent too many requests, try using less workers")
             
-
         articles_urls = list()
 
         for title in titles:
