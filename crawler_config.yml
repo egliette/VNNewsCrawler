@@ -10,7 +10,7 @@ urls_fpath: "urls.txt"
 output_dpath: "result"
 num_workers: 1
 
-# if task == "type"
-all_types: False
+# if task == "type": 
+# article_type == "all" to crawl all of types
 article_type: "du-lich"
 total_pages: 1

@@ -86,7 +86,7 @@ class BaseCrawler(ABC):
         """ Crawling contents of a specific type or all types """
         urls_dpath, results_dpath = init_output_dirs(self.output_dpath)
 
-        if self.all_types:
+        if self.article_type == "all":
             error_urls = self.crawl_all_types(urls_dpath, results_dpath)
         else:
             error_urls = self.crawl_type(self.article_type, urls_dpath, results_dpath)
