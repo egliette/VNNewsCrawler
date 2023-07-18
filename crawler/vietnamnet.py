@@ -19,7 +19,7 @@ class VietNamNetCrawler(BaseCrawler):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.logger = log.get_logger(name=__name__)
-        self.base_url = "https://vietnamnet.vn/"
+        self.base_url = "https://vietnamnet.vn"
         self.article_type_dict = {
             0: "thoi-su",
             1: "kinh-doanh",
@@ -83,7 +83,7 @@ class VietNamNetCrawler(BaseCrawler):
     
     def get_urls_of_type_thread(self, article_type, page_number):
         """" Get urls of articles in a specific type in a page"""
-        page_url = f"https://dantri.com.vn/{article_type}/trang-{page_number}.htm"
+        page_url = f"https://vietnamnet.vn/{article_type}-page{page_number}"
         content = requests.get(page_url).content
         soup = BeautifulSoup(content, "html.parser")
         titles = soup.find_all(class_="article-title")
