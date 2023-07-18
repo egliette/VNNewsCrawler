@@ -9,7 +9,7 @@ def create_dir(path):
 def read_file(path):
     with open(path, encoding="utf-8") as file:
         for line in file:
-            yield line
+            yield line.rstrip("\n")
 
 def init_output_dirs(output_dpath):
     create_dir(output_dpath)

@@ -69,7 +69,8 @@ class DanTriCrawler(BaseCrawler):
 
         # some sport news have location-stamp child tag inside description tag
         description = (get_text_from_tag(p) for p in soup.find("h2", class_="singular-sapo").contents)
-        paragraphs = (get_text_from_tag(p) for p in soup.find_all("p", class_="singular-content"))
+        content = soup.find("div", class_="singular-content")
+        paragraphs = (get_text_from_tag(p) for p in content.find_all("p"))
 
         return title, description, paragraphs
 
